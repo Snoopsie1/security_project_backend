@@ -2,6 +2,8 @@
 
 require_once('../controller/ProductController.php');
 
+
+
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 switch ($requestMethod) {
@@ -10,6 +12,7 @@ switch ($requestMethod) {
         $products = ProductController::getAllProducts();
 
         header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
         echo json_encode($products);
         break;
 
