@@ -3,6 +3,7 @@
 require_once('../classes/Product.php');
 require_once('../config.php'); // Assuming you've configured your database connection here
 
+// Debug Helper
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
