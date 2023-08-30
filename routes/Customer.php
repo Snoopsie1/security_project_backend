@@ -6,6 +6,23 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 switch ($requestMethod) {
     case 'GET':
+        $customerId = isset($_GET['id']) ? $_GET['id'] : null;
+        
+        if ($customerId !== null) {
+            $customer = CustomerController::getCustomerById($customerId);
+    
+            if ($customer !== null) {
+                header('Content-Type: application/json');
+                echo json_encode($customer);
+            } else {
+                echo "Customer not found.";
+            }
+        } else {
+            echo "Customer ID is required.";
+        }
+        break;
+
+    case 'GET':
         // Handle GET request to retrieve all customers
         $customers = CustomerController::getAllCustomers();
 

@@ -8,6 +8,23 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 class CustomerController {
+    //localhost/api/routes/customer.php?id=
+    public static function getCustomerById($customerId) {
+        $pdo = new Connect();
+    
+        $stmt = $pdo->prepare("SELECT * FROM customer WHERE id = ?");
+        $stmt->execute([$customerId]);
+    
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if ($row) {
+            $customer = new Customer($row['id'], $row['name'], $row['email'], $row['password'], $row['role_id']);
+            return $customer;
+        } else {
+            return null; // Customer not found
+        }
+    }
+    
 
     //localhost/api/routes/customer.php
     public static function getAllCustomers() {
