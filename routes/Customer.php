@@ -53,13 +53,12 @@ switch ($requestMethod) {
         $password = $_POST['password'];
         $role_id = $_POST['role_id'];
 
-        if (CustomerController::createCustomer($name, $email, $password, $role_id)) {
-            echo "Customer created successfully.";
-        } else {
-            echo "Unauthorized action.";
-        }
-        break;
+        $customerController = new CustomerController();
+        $result = $customerController->registerCustomer($email, $password, $name, $role_id);
 
+        echo $result;
+        break;
+        
     default:
         header("HTTP/1.1 405 Method Not Allowed");
         echo "Method not allowed.";
