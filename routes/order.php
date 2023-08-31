@@ -1,6 +1,6 @@
 <?php
 
-require_once('../controller/OrderController.php');
+require_once('../controllers/OrderController.php');
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
