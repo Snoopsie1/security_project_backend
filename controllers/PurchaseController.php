@@ -1,24 +1,24 @@
 <?php
 
-require_once('../classes/Order.php');
+require_once('../classes/Purchase.php');
 require_once('../config.php'); // Assuming you've configured your database connection here
 
 // Debug Helper
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-class OrderController {
+class PurchaseController {
 
   //localhost/api/routes/product.php
-  public static function getAllOrders() {
+  public static function getAllPurchases() {
         $pdo = new Connect();
 
-        $stmt = $pdo->prepare("SELECT * FROM customer_order");
+        $stmt = $pdo->prepare("SELECT * FROM purchase");
         $stmt->execute();
 
-        $orders = [];
+        $purchases = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $order = new Order($row['id']);
+            $Purchase = new Purchase($row['id']);
 
             $productIds = explode(',', $row['products']);
 
@@ -34,21 +34,21 @@ class OrderController {
                 }
             }
 
-            $order->setProducts($productNames);
-            $orders[] = $order;
+            $Purchase->setProducts($productNames);
+            $purchases[] = $Purchase;
         }
 
-        return $orders;
+        return $purchases;
     }
 
-    public static function getOrderById($orderId) {
+    public static function getPurchaseById($purchaseId) {
         $pdo = new Connect(); // Assuming $pdo is your configured database connection
 
-        $stmt = $pdo->prepare("SELECT * FROM customer_order WHERE id = ?");
-        $stmt->execute([$orderId]);
+        $stmt = $pdo->prepare("SELECT * FROM purchase WHERE id = ?");
+        $stmt->execute([$purchaseId]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $order = new Order($row['id']);
+        $Purchase = new Purchase($row['id']);
 
         $productIds = explode(',', $row['products']);
 
@@ -62,19 +62,19 @@ class OrderController {
                 $productNames[] = $productRow['name'];
             }
 
-            $order->setProducts($productNames);
-            $orders[] = $order;
+            $Purchase->setProducts($productNames);
+            $purchases[] = $Purchase;
         }
-        return $orders;
+        return $purchases;
     }
 
     //localhost/api/routes/product.php?id=productId&customerRole=customerRole
-    public static function deleteOrder($orderId, $customerRole) {
+    public static function deletePurchase($purchaseId, $customerRole) {
         if ($customerRole == 1) {
             global $pdo;
 
             $stmt = $pdo->prepare("DELETE FROM product WHERE id = ?");
-            $stmt->execute([$orderId]);
+            $stmt->execute([$purchaseId]);
 
             return true;
         } else {
@@ -82,7 +82,7 @@ class OrderController {
         }
     }
 
-    public static function createOrder($products) {
+    public static function createPurchase($products, $customerRole) {
         if ($customerRole == 1) {
             global $pdo;
 
