@@ -1,6 +1,6 @@
 <?php
 
-require_once('../controller/RoleController.php');
+require_once('../controllers/RoleController.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $roleId = isset($_GET['id']) ? $_GET['id'] : null;

@@ -1,8 +1,6 @@
 <?php
 
-require_once('../controller/ProductController.php');
-
-
+require_once('../controllers/ProductController.php');
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 

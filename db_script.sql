@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: localhost
--- Genereringstid: 29. 08 2023 kl. 13:28:51
+-- Genereringstid: 31. 08 2023 kl. 10:44:09
 -- Serverversion: 10.4.28-MariaDB
 -- PHP-version: 8.2.4
 
@@ -33,18 +33,19 @@ CREATE TABLE `customer` (
   `email` varchar(30) NOT NULL,
   `password` varchar(30) NOT NULL,
   `role_id` int(11) NOT NULL,
-  `orders` int(11) DEFAULT NULL
+  `purchases` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `customer_order`
+-- Struktur-dump for tabellen `customer_purchase`
 --
 
-CREATE TABLE `customer_order` (
+CREATE TABLE `customer_purchase` (
   `id` int(11) NOT NULL,
-  `products` int(11) DEFAULT NULL
+  `customer_id` int(11) DEFAULT NULL,
+  `purchase_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -62,13 +63,44 @@ CREATE TABLE `product` (
 -- --------------------------------------------------------
 
 --
+-- Struktur-dump for tabellen `purchase`
+--
+
+CREATE TABLE `purchase` (
+  `id` int(11) NOT NULL,
+  `products` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur-dump for tabellen `purchase_product`
+--
+
+CREATE TABLE `purchase_product` (
+  `id` int(11) NOT NULL,
+  `product_id` int(11) DEFAULT NULL,
+  `purchase_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur-dump for tabellen `role`
 --
 
 CREATE TABLE `role` (
   `id` int(11) NOT NULL,
-  `type` varchar(10) NOT NULL
+  `role` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Data dump for tabellen `role`
+--
+
+INSERT INTO `role` (`id`, `role`) VALUES
+(1, 'admin'),
+(2, 'user');
 
 --
 -- Begrænsninger for dumpede tabeller
@@ -80,20 +112,36 @@ CREATE TABLE `role` (
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`id`),
   ADD KEY `role_id` (`role_id`),
-  ADD KEY `orders` (`orders`);
+  ADD KEY `purchases` (`purchases`);
 
 --
--- Indeks for tabel `customer_order`
+-- Indeks for tabel `customer_purchase`
 --
-ALTER TABLE `customer_order`
+ALTER TABLE `customer_purchase`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `products` (`products`);
+  ADD KEY `customer_id` (`customer_id`),
+  ADD KEY `purchase_id` (`purchase_id`);
 
 --
 -- Indeks for tabel `product`
 --
 ALTER TABLE `product`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks for tabel `purchase`
+--
+ALTER TABLE `purchase`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `products` (`products`);
+
+--
+-- Indeks for tabel `purchase_product`
+--
+ALTER TABLE `purchase_product`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `customer_order_id` (`purchase_id`),
+  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indeks for tabel `role`
@@ -112,22 +160,34 @@ ALTER TABLE `customer`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `customer_order`
+-- Tilføj AUTO_INCREMENT i tabel `customer_purchase`
 --
-ALTER TABLE `customer_order`
+ALTER TABLE `customer_purchase`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `product`
 --
 ALTER TABLE `product`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- Tilføj AUTO_INCREMENT i tabel `purchase`
+--
+ALTER TABLE `purchase`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Tilføj AUTO_INCREMENT i tabel `purchase_product`
+--
+ALTER TABLE `purchase_product`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `role`
 --
 ALTER TABLE `role`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Begrænsninger for dumpede tabeller
@@ -137,14 +197,27 @@ ALTER TABLE `role`
 -- Begrænsninger for tabel `customer`
 --
 ALTER TABLE `customer`
-  ADD CONSTRAINT `orders` FOREIGN KEY (`orders`) REFERENCES `customer_order` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
+  ADD CONSTRAINT `purchases` FOREIGN KEY (`purchases`) REFERENCES `customer_purchase` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
   ADD CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
 
 --
--- Begrænsninger for tabel `customer_order`
+-- Begrænsninger for tabel `customer_purchase`
 --
-ALTER TABLE `customer_order`
-  ADD CONSTRAINT `products` FOREIGN KEY (`products`) REFERENCES `product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+ALTER TABLE `customer_purchase`
+  ADD CONSTRAINT `customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
+  ADD CONSTRAINT `purchase_id` FOREIGN KEY (`purchase_id`) REFERENCES `purchase` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+
+--
+-- Begrænsninger for tabel `purchase`
+--
+ALTER TABLE `purchase`
+  ADD CONSTRAINT `products` FOREIGN KEY (`products`) REFERENCES `purchase_product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+
+--
+-- Begrænsninger for tabel `purchase_product`
+--
+ALTER TABLE `purchase_product`
+  ADD CONSTRAINT `product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
