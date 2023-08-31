@@ -1,6 +1,6 @@
 <?php
 
-class Order {
+class Purchase {
     public $id;
     public $products = [];
 
