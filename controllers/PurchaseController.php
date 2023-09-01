@@ -21,16 +21,16 @@ class PurchaseController {
             $purchase = new Purchase($row['id']);
 
             // Fetch product names associated with this order
-            $productStmt = $pdo->prepare("SELECT p.name FROM product p INNER JOIN purchase_product op ON p.id = op.product_id WHERE op.purchase_id = :purchaseId");
+            $productStmt = $pdo->prepare("SELECT p.id, p.name, p.price FROM product p INNER JOIN purchase_product op ON p.id = op.product_id WHERE op.purchase_id = :purchaseId");
             $productStmt->bindValue(':purchaseId', $row['products'], PDO::PARAM_INT);
             $productStmt->execute();
 
-            $productNames = [];
+            $products = [];
             while ($productRow = $productStmt->fetch(PDO::FETCH_ASSOC)) {
-                $productNames[] = $productRow["name"];
+                $products[] = $productRow;
             }
 
-            $purchase->setProducts($productNames);
+            $purchase->setProducts($products);
 
             $purchases[] = $purchase;
 
@@ -64,7 +64,7 @@ class PurchaseController {
     }
 
     //localhost/api/routes/product.php?id=productId&customerRole=customerRole
-    public static function deleteOrder($orderId, $customerRole) {
+    public static function deletePurchase($orderId, $customerRole) {
         if ($customerRole == 1) {
             global $pdo;
 
