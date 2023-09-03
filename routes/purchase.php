@@ -1,29 +1,29 @@
 <?php
 
-require_once('../controllers/OrderController.php');
+require_once('../controllers/PurchaseController.php');
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 switch ($requestMethod) {
     case 'GET': {
-        $action =  $orderId = isset($_GET['id']) ? true : false;
+        $action = isset($_GET['id']) ? true : false;
         switch ($action) {
             case false: {
-                $orders = OrderController::getAllOrders();
+                $purchases = PurchaseController::getAllPurchases();
                 header('Content-Type: application/json');
                 header('Access-Control-Allow-Origin: *');
-                echo json_encode($orders);
+                echo json_encode($purchases);
                 break;
             }
             case true: {
-                $orderId = isset($_GET['id']) ? $_GET['id']:null;
+                $purchaseId = isset($_GET['id']) ? $_GET['id']:null;
                 
-                if($orderId !== null) {
-                    $order = OrderController::getOrderById($orderId);
-                    if ($order !== null) {
+                if($purchaseId !== null) {
+                    $purchase = PurchaseController::getPurchaseById($purchaseId);
+                    if ($purchase !== null) {
                         header('Content-Type: application/json');
                         header('Access-Control-Allow-Origin: *');
-                        echo json_encode($order);
+                        echo json_encode($purchase);
                     } else {
                         echo "Order not found";
                     }
