@@ -64,27 +64,66 @@ class PurchaseController {
     }
 
     //localhost/api/routes/product.php?id=productId&customerRole=customerRole
-    public static function deletePurchase($orderId, $customerRole) {
+    public static function deletePurchase($purchaseId, $customerRole) {
         if ($customerRole == 1) {
-            global $pdo;
+            $pdo = new Connect();
 
-            $stmt = $pdo->prepare("DELETE FROM product WHERE id = ?");
-            $stmt->execute([$orderId]);
+            $deletePurchaseProductSQL = "DELETE FROM purchase_product WHERE purchase_id = :purchaseID";
+            $stmtPurchaseProduct = $pdo->prepare($deletePurchaseProductSQL);
+            $stmtPurchaseProduct->bindParam(":purchaseID", $purchaseId, PDO::PARAM_INT);
+            
+            if (!$stmtPurchaseProduct->execute()) {
+                $pdo->rollBack();
+                return false; // Deletion of related purchase_product records failed
+            }
 
-            return true;
+            $deletePurchaseSQL = "DELETE FROM purchase WHERE id = :purchaseID";
+            $stmtPurchase = $pdo->prepare($deletePurchaseSQL);
+            $stmtPurchase->bindParam(":purchaseID", $purchaseId, PDO::PARAM_INT);
+
+            if ($stmtPurchase->execute()) {
+                $pdo->commit(); // Deletion was successful
+                return true;
+            } else {
+                $pdo->rollBack(); // Deletion of purchase record failed
+                return false;
+            }
         } else {
             return false;
         }
     }
 
-    public static function createOrder($products) {
+    public static function createPurchase($productIDs) {
         if ($customerRole == 1) {
             global $pdo;
 
-            $stmt = $pdo->prepare("INSERT INTO customer_ordeer (products) VALUES (?)");
-            $stmt->execute([$products]);
+            $insertPurchaseSQL = "INSERT INTO purchase () VALUES ()";
+            $stmtPurchase = $pdo->prepare($insertPurchaseSQL);
 
-            return true;
+            if (!$stmtPurchase->execute()) {
+                $pdo->rollBack();
+                return false; //Insertion of purchase record failed
+            }
+
+            //get the auto-generated purchaseID
+            $purchaseID = $pdo->lastInsertId();
+
+            //Insert the purchased products into the pruchase_product table
+            foreach ($productIDs as $productID) {
+                $insertPurchaseProductSQL = "INSERT INTO purchase_product (product_id, purchase_id) VALUES (:productID, :purchaseID)";
+                $stmtPurchseProduct = $pdo->prepare($insertPurchaseProductSQL);
+                $stmtPurchseProduct->bindParam(":productID", $productID);
+                $stmtPurchseProduct->bindParam(":purchaseID", $purchseID);
+
+                if (!$stmtPurchaseProduct->execute()) {
+                    $pdo->rollBack();
+                    return false; // Insertion of purchase_product record failed
+                }
+            }
+
+            // Commit the transaction since everything was succesful
+            $pdo->commit();
+            return true; // Purchase creation was succesful
         } else {
             return false;
         }
