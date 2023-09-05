@@ -22,7 +22,7 @@ class PurchaseController {
 
             // Fetch product names associated with this order
             $productStmt = $pdo->prepare("SELECT p.id, p.name, p.price FROM product p INNER JOIN purchase_product op ON p.id = op.product_id WHERE op.purchase_id = :purchaseId");
-            $productStmt->bindValue(':purchaseId', $row['products'], PDO::PARAM_INT);
+            $productStmt->bindValue(':purchaseId', $row['id'], PDO::PARAM_INT);
             $productStmt->execute();
 
             $products = [];
