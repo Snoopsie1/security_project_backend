@@ -181,7 +181,7 @@ class CustomerController {
                 "user_name" => $userName,
                 "user_email" => $userEmail,
                 "user_password" => $userPassword,
-                "userRole" => $userRole,
+                "user_role" => $userRole,
                 "exp" => time() + 3600 // Token expiration time (1 hour from now)
             );
 
