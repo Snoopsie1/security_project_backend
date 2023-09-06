@@ -168,6 +168,7 @@ class CustomerController {
 
             // Generate a JWT
             $userId = $userData['id'];
+            //TODO: fix this
             // $secretKey = $_ENV['JWT_SECRET_KEY']; ENV metode virker ikke
             $secretKey = 'e79694081b3d2287e288708062bed5662ce15ea38202c89007dbed8a3d608396';
 
