@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Vært: localhost
--- Genereringstid: 31. 08 2023 kl. 10:44:09
+-- Genereringstid: 05. 09 2023 kl. 10:47:34
 -- Serverversion: 10.4.28-MariaDB
 -- PHP-version: 8.2.4
 
@@ -60,6 +60,18 @@ CREATE TABLE `product` (
   `price` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Data dump for tabellen `product`
+--
+
+INSERT INTO `product` (`id`, `name`, `price`) VALUES
+(10, 'condom', 40),
+(11, 'webcam', 100),
+(12, 'weight gainer', 400),
+(13, 'roids', 1000),
+(14, 'strap on', 40),
+(15, 'neon lys', 80);
+
 -- --------------------------------------------------------
 
 --
@@ -67,8 +79,7 @@ CREATE TABLE `product` (
 --
 
 CREATE TABLE `purchase` (
-  `id` int(11) NOT NULL,
-  `products` int(11) DEFAULT NULL
+  `id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -111,8 +122,11 @@ INSERT INTO `role` (`id`, `role`) VALUES
 --
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`),
   ADD KEY `role_id` (`role_id`),
-  ADD KEY `purchases` (`purchases`);
+  ADD KEY `purchases` (`purchases`),
+  ADD KEY `purchases_2` (`purchases`),
+  ADD KEY `role_id_2` (`role_id`);
 
 --
 -- Indeks for tabel `customer_purchase`
@@ -126,28 +140,33 @@ ALTER TABLE `customer_purchase`
 -- Indeks for tabel `product`
 --
 ALTER TABLE `product`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Indeks for tabel `purchase`
 --
 ALTER TABLE `purchase`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `products` (`products`);
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Indeks for tabel `purchase_product`
 --
 ALTER TABLE `purchase_product`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `customer_order_id` (`purchase_id`),
-  ADD KEY `product_id` (`product_id`);
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `product_id_2` (`product_id`),
+  ADD KEY `purchase_id` (`purchase_id`),
+  ADD KEY `product_id_3` (`product_id`),
+  ADD KEY `purchase_id_2` (`purchase_id`);
 
 --
 -- Indeks for tabel `role`
 --
 ALTER TABLE `role`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Brug ikke AUTO_INCREMENT for slettede tabeller
@@ -169,19 +188,19 @@ ALTER TABLE `customer_purchase`
 -- Tilføj AUTO_INCREMENT i tabel `product`
 --
 ALTER TABLE `product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `purchase`
 --
 ALTER TABLE `purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `purchase_product`
 --
 ALTER TABLE `purchase_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Tilføj AUTO_INCREMENT i tabel `role`
@@ -208,16 +227,11 @@ ALTER TABLE `customer_purchase`
   ADD CONSTRAINT `purchase_id` FOREIGN KEY (`purchase_id`) REFERENCES `purchase` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
 
 --
--- Begrænsninger for tabel `purchase`
---
-ALTER TABLE `purchase`
-  ADD CONSTRAINT `products` FOREIGN KEY (`products`) REFERENCES `purchase_product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
-
---
 -- Begrænsninger for tabel `purchase_product`
 --
 ALTER TABLE `purchase_product`
-  ADD CONSTRAINT `product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+  ADD CONSTRAINT `product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
+  ADD CONSTRAINT `purchase_product_ibfk_1` FOREIGN KEY (`purchase_id`) REFERENCES `purchase` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -1,34 +1,48 @@
 <?php
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Set CORS headers for preflight OPTIONS request
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+    header("HTTP/1.1 200 OK");
+    exit;
+}
+
 require_once('../controllers/PurchaseController.php');
 
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+$requestMethod = $_SERVER['REQUEST_METHOD']; //get request method
+$requestUri = $_SERVER['REQUEST_URI']; //get URL
+
+// set CORS headers for all other responses
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header('Content-Type: application/json');
 
 switch ($requestMethod) {
     case 'GET': {
-        $action =  $purchaseId = isset($_GET['id']) ? true : false;
-        switch ($action) {
-            case false: {
+        $urlParts = parse_url($requestUri); //split the URL into parts
+        $uriWithoutQuery = $urlParts['path']; //rebuild the URL without the query part
+        $segments = explode('/', trim($uriWithoutQuery, '/')); //split URL into segments and select last segment
+        //check if URL contains "/purchasephp/" followed by a number
+        $action = in_array('purchase.php', $segments) && is_numeric(end($segments)) ? true : false;
+        switch (!$action) {
+            case true: {   // if their is no query params then run getAllPurchases
                 $purchases = PurchaseController::getAllPurchases();
-                header('Content-Type: application/json');
-                header('Access-Control-Allow-Origin: *');
                 echo json_encode($purchases);
                 break;
             }
-            case true: {
-                $purchaseId = isset($_GET['id']) ? $_GET['id']:null;
+            case false: {   // if their is query params then run getPurchaseById
+                $purchaseId = array_pop($segments);
+                $purchase = PurchaseController::getPurchaseById($purchaseId);
                 
-                if($purchaseId !== null) {
-                    $purchase = PurchaseController::getPurchaseById($purchaseId);
-                    if ($purchase !== null) {
-                        header('Content-Type: application/json');
-                        header('Access-Control-Allow-Origin: *');
-                        echo json_encode($purchase);
-                    } else {
-                        echo "Purchase not found";
-                    }
+                if($purchase !== null) {
+                    header('Content-Type: application/json');
+                    header('Access-Control-Allow-Origin: *');
+                    echo json_encode($purchase);
                 } else {
-                    echo "Purchase ID is Required";
+                    echo "Order not found";
                 }
                 break;
             }
@@ -39,24 +53,27 @@ switch ($requestMethod) {
         break;
     }
     case 'DELETE': {
-        // Handle DELETE request to delete a product
-        // TODO: Bønne fiks det her
-        $productId = isset($_GET['id']) ? $_GET['id'] : null;
-        $customerRole = isset($_GET['role']) ? $_GET['role'] : 0;
+        $urlParts = parse_url($requestUri); //split the URL into parts
+        $uriWithoutQuery = $urlParts['path']; //rebuild the URL without the query part
 
-        if ($productId !== null) {
-            if (ProductController::deleteProduct($productId, $customerRole)) {
-                echo "Product deleted successfully.";
+        $segments = explode('/', trim($uriWithoutQuery, '/')); //split URL into segments and select last segment
+
+        $purchaseId = end($segments); //get puchaseId by taking last element in segments
+        $customerRole = isset($_GET['role']) ? $_GET['role'] : 0; //get query param
+        
+        if ($purchaseId !== null) {
+            if (PurchaseController::deletePurchase($purchaseId, $customerRole)) {
+                echo "purchase deleted successfully.";
             } else {
                 echo "Unauthorized action.";
             }
         } else {
-            echo "Product ID is required.";
+            echo "purchase ID is required.";
         }
         break;
     }
     case 'POST': {
-        // Handle POST request to create a product
+        // Handle POST request to create a product  THIS IS NOT DONE THIS IS NOT DONE THIS IS NOT DONE THIS IS NOT DONE
         $productName = $_POST['name'];
         $productPrice = $_POST['price'];
         $customerRole = $_POST['role'];
