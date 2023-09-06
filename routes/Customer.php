@@ -23,6 +23,29 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 switch ($requestMethod) {
+        case 'GET':
+            // Check if 'id' parameter is provided
+            $customerId = isset($_GET['id']) ? $_GET['id'] : null;
+    
+            if ($customerId !== null) {
+                // Handle GET request to retrieve a single customer by ID
+                $customer = CustomerController::getCustomerById($customerId);
+    
+                if ($customer !== null) {
+                    header('Content-Type: application/json');
+                    echo json_encode($customer);
+                } else {
+                    echo "Customer not found.";
+                }
+            } else {
+                // Handle GET request to retrieve all customers
+                $customers = CustomerController::getAllCustomers();
+    
+                header('Content-Type: application/json');
+                echo json_encode($customers);
+            }
+            break;
+    
     case 'GET':
         $customerId = isset($_GET['id']) ? $_GET['id'] : null;
         
