@@ -1,8 +1,23 @@
 <?php
 
-require_once('../controllers/ProductController.php');
+if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
+    // Respond to preflight requests (OPTIONS) with a 200 status code
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+    header("HTTP/1.1 200 OK");
+    exit();
+}
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
+$requestUri = $_SERVER['REQUEST_URI'];
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header('Content-Type: application/json');
+
+require_once('../controllers/ProductController.php');
 
 switch ($requestMethod) {
     case 'GET':
@@ -32,15 +47,15 @@ switch ($requestMethod) {
 
     case 'POST':
         // Handle POST request to create a product
-        $productName = $_POST['name'];
-        $productPrice = $_POST['price'];
-        $customerRole = $_POST['role'];
+        $data = json_decode(file_get_contents("php://input"), true); // Get JSON data
+        $productName = $data['name'];
+        $productPrice = $data['price'];
+        $customerRole = $data['role'];
 
-        if (ProductController::createProduct($productName, $productPrice, $customerRole)) {
-            echo "Product created successfully.";
-        } else {
-            echo "Unauthorized action.";
-        }
+        $productController = new ProductController();
+        $result = $productController->createProduct($productName, $productPrice, $customerRole);
+        echo ($result);
+
         break;
 
     default:
