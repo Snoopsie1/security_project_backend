@@ -27,19 +27,18 @@ switch ($requestMethod) {
         $segments = explode('/', trim($uriWithoutQuery, '/')); //split URL into segments and select last segment
         //check if URL contains "/purchasephp/" followed by a number
         $action = in_array('purchase.php', $segments) && is_numeric(end($segments)) ? true : false;
-        switch (!$action) {
-            case true: {   // if their is no query params then run getAllPurchases
+        
+        switch ($action) {  // is id passed or not
+            case false: {   // if their is no params then run getAllPurchases
                 $purchases = PurchaseController::getAllPurchases();
                 echo json_encode($purchases);
                 break;
             }
-            case false: {   // if their is query params then run getPurchaseById
-                $purchaseId = array_pop($segments);
-                $purchase = PurchaseController::getPurchaseById($purchaseId);
+            case true: {   // if their is params then run getPurchaseById
+                $customerId = array_pop($segments);
+                $purchase = PurchaseController::getPurchaseByCustomerId($customerId);
                 
                 if($purchase !== null) {
-                    header('Content-Type: application/json');
-                    header('Access-Control-Allow-Origin: *');
                     echo json_encode($purchase);
                 } else {
                     echo "Order not found";
@@ -73,22 +72,18 @@ switch ($requestMethod) {
         break;
     }
     case 'POST': {
-        // Handle POST request to create a product  THIS IS NOT DONE THIS IS NOT DONE THIS IS NOT DONE THIS IS NOT DONE
-        $productName = $_POST['name'];
-        $productPrice = $_POST['price'];
-        $customerRole = $_POST['role'];
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true); // true to get an associative array
 
-        if (ProductController::createProduct($productName, $productPrice, $customerRole)) {
-            echo "Product created successfully.";
+        if ($data !== null) {
+            // $data now contains a Purchase object with products
+            // Access them like this: $data->id and $data->products
+            print_r($data);
         } else {
-            echo "Unauthorized action.";
+            // Handle JSON decoding error
+            http_response_code(400); // Bad Request
+            echo "Invalid JSON data";
         }
-        break;
-    }
-    default: {
-        header("HTTP/1.1 405 Method Not Allowed");
-        echo "Method not allowed.";
-        break;
     }
 }
 ?>
