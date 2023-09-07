@@ -63,6 +63,25 @@ switch ($requestMethod) {
         }
         break;
 
+        case 'PUT':
+           $putData = json_decode(file_get_contents("php://input"), true); // Parse the request body
+            // Assuming that 'id', 'name', and 'email' exist in the request body
+            $customerId = $putData['id'];
+            $updatedName = $putData['name'];
+            $updatedEmail = $putData['email'];
+        
+            // You can add additional validation here if needed
+        
+            // Handle the PUT request to edit the customer
+            $result = CustomerController::editCustomer($customerId, $updatedName, $updatedEmail);
+        
+            if ($result) {
+                echo "Customer updated successfully.";
+            } else {
+                echo "Failed to update customer.";
+            }
+            break;
+        
     // case 'GET':
     //     // Handle GET request to retrieve all customers
     //     $customers = CustomerController::getAllCustomers();

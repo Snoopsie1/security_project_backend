@@ -43,6 +43,22 @@ class CustomerController {
         return $customers;
     }
 
+    public static function editCustomer($customerId, $updatedName, $updatedEmail) {
+        $pdo = new Connect();
+        $statement = $pdo->prepare("UPDATE customer SET name = :name, email = :email WHERE id = :id");
+        $statement->bindValue(':name', $updatedName);
+        $statement->bindValue(':email', $updatedEmail);
+        $statement->bindValue(':id', $customerId);
+        $statement->execute();
+    
+        if (!$success) {
+            error_log("Database update error: " . implode(" ", $stmt->errorInfo()));
+        }
+    
+        return $stmt->rowCount() > 0; // Return true if any rows were updated
+    }
+     
+
     //localhost/api/routes/customer.php?id=customerId&customerRole=customerRole
     public static function deleteCustomer($customerId, $customerRole) {
         if ($customerRole == 1) {
