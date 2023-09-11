@@ -63,6 +63,45 @@ class PurchaseController {
         return $purchase;
     }
 
+    public static function getPurchaseByCustomerId($customerId) {
+        try {
+            $pdo = new Connect();
+             // SQL query to fetch purchase IDs for a specific customer by ID
+            $purchaseSql = "SELECT p.id
+            FROM purchase p
+            JOIN customer_purchase cp ON p.id = cp.purchase_id
+            WHERE cp.customer_id = :customer_id";
+
+            // Prepare and execute the purchase statement
+            $purchaseStmt = $pdo->prepare($purchaseSql);
+            $purchaseStmt->bindParam(':customer_id', $customerId, PDO::PARAM_INT);
+            $purchaseStmt->execute();
+
+            $purchases = [];
+            while ($row = $purchaseStmt->fetch(PDO::FETCH_ASSOC)) {
+                $purchase = new Purchase($row['id']);
+
+                // Fetch product names associated with this order
+                $productStmt = $pdo->prepare("SELECT p.id, p.name, p.price FROM product p INNER JOIN purchase_product op ON p.id = op.product_id WHERE op.purchase_id = :purchaseId");
+                $productStmt->bindValue(':purchaseId', $row['id'], PDO::PARAM_INT);
+                $productStmt->execute();
+
+                $products = [];
+                while ($productRow = $productStmt->fetch(PDO::FETCH_ASSOC)) {
+                    $products[] = $productRow;
+                }
+
+                $purchase->setProducts($products);
+
+                $purchases[] = $purchase;
+
+            }
+            return $purchases;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
     //localhost/api/routes/product.php?id=productId&customerRole=customerRole
     public static function deletePurchase($purchaseId, $customerRole) {
         if ($customerRole == 1) {

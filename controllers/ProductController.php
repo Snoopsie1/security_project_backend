@@ -1,7 +1,7 @@
 <?php
 
-require_once('../classes/Product.php');
-require_once('../config.php'); // Assuming you've configured your database connection here
+include_once('../classes/Product.php');
+include_once('../config.php'); // Assuming you've configured your database connection here
 
 // Debug Helper
 ini_set('display_errors', 1);
@@ -32,20 +32,59 @@ class ProductController {
             $stmt = $pdo->prepare("DELETE FROM product WHERE id = ?");
             $stmt->execute([$productId]);
 
-            return true;
+            http_response_code(200);
+            return json_encode(array(
+                "status" => 1,
+                "message" => "Added product, successfully!",
+            ));
         } else {
-            return false;
+            http_response_code(500);
+            return json_encode(array(
+                "status" => 0,
+                "message" => "Whoops something went wrong!",
+            ));
         }
     }
 
-    public static function createProduct($productName, $productPrice, $customerRole) {
+    public function checkProductName($pdo, $name) {
+        $product_query_statement = $pdo->prepare("SELECT * FROM product WHERE name = :name");
+        $product_query_statement->bindValue(':name', $name);
+
+        if ($product_query_statement->execute()) {
+            $result = $product_query_statement->fetch(PDO::FETCH_ASSOC);
+            return $result;
+        }
+
+        return array();
+    }
+
+    public function createProduct($productName, $productPrice, $customerRole) {
         if ($customerRole == 1) {
-            global $pdo;
+            $pdo = new Connect();
 
             $stmt = $pdo->prepare("INSERT INTO product (name, price) VALUES (?, ?)");
-            $stmt->execute([$productName, $productPrice]);
+            $stmt->bindParam(1, $productName);
+            $stmt->bindParam(2, $productPrice);
 
-            return true;
+            $product_data = $this->checkProductName($pdo, $productName);
+
+            if (!empty($product_data)) {
+                http_response_code(500);
+                return json_encode(array(
+                    "status" => 0,
+                    "message" => "Product already exists. Try another Product name!",
+                ));
+            } else {
+                if ($stmt->execute()) {
+                    http_response_code(200);
+                    return json_encode(array(
+                        "status" => 1,
+                        "message" => "Product has been created",
+                    ));
+                } else {
+                    return "Error: " . $stmt->errorInfo()[2]; // Get the error message
+                }
+            }
         } else {
             return false;
         }

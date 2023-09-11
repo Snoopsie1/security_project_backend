@@ -180,12 +180,12 @@ class CustomerController {
         }
     }
 
-    public static function getHashedPasswordAndUserIdByEmail($email) {
+    public static function getAllUserDataByEmail($email) {
         // Create a PDO instance and connect to the database
         $pdo = new Connect();
 
         // Prepare and execute a query to fetch the hashed password based on the email
-        $statement = $pdo->prepare("SELECT id, password FROM customer WHERE email = :email");
+        $statement = $pdo->prepare("SELECT * FROM customer WHERE email = :email");
         $statement->bindValue(':email', $email);
         $statement->execute();
 
@@ -201,7 +201,7 @@ class CustomerController {
 
     public static function login($email, $password) {
         // Fetch hashed password from the database based on the provided email
-        $userData = self::getHashedPasswordAndUserIdByEmail($email);
+        $userData = self::getAllUserDataByEmail($email);
 
         if ($userData === null) {
             // User not found
@@ -214,12 +214,20 @@ class CustomerController {
 
             // Generate a JWT
             $userId = $userData['id'];
+            $userName = $userData['name'];
+            $userEmail = $userData['email'];
+            $userPassword = $userData['password'];
+            $userRole = $userData['role_id'];
             //TODO: fix this
             // $secretKey = $_ENV['JWT_SECRET_KEY']; ENV metode virker ikke
             $secretKey = 'e79694081b3d2287e288708062bed5662ce15ea38202c89007dbed8a3d608396';
 
             $jwtPayload = array(
                 "user_id" => $userId,
+                "user_name" => $userName,
+                "user_email" => $userEmail,
+                "user_password" => $userPassword,
+                "user_role" => $userRole,
                 "exp" => time() + 3600 // Token expiration time (1 hour from now)
             );
 
