@@ -91,20 +91,32 @@ switch ($requestMethod) {
     //     break;
 
     case 'DELETE':
-        // Handle DELETE request to delete a customer
         $customerId = isset($_GET['id']) ? $_GET['id'] : null;
-        $customerRole = isset($_GET['role']) ? $_GET['role'] : 0;
-
+        
         if ($customerId !== null) {
-            if (CustomerController::deleteCustomer($customerId, $customerRole)) {
-                echo "Customer deleted successfully.";
+            // Retrieve the user's role using the getCustomerRole method from your CustomerController
+            $customerRole = CustomerController::getCustomerRole($customerId);
+            
+            if ($customerRole !== null) {
+                if ($customerRole === 1) {
+                    // User is an admin, they have permission to delete
+                    if (CustomerController::deleteCustomer($customerId, $customerRole)) {
+                        echo "Customer deleted successfully.";
+                    } else {
+                        echo "Failed to delete customer.";
+                    }
+                } else {
+                    echo "Unauthorized action.";
+                }
             } else {
-                echo "Unauthorized action.";
+                echo "Failed to retrieve customer role.";
             }
         } else {
             echo "Customer ID is required.";
         }
         break;
+    
+    
 
     case 'POST':
         // Handle POST request to create a customer
