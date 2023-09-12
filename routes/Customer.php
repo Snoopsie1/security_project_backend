@@ -63,6 +63,25 @@ switch ($requestMethod) {
         }
         break;
 
+        case 'PUT':
+           $putData = json_decode(file_get_contents("php://input"), true); // Parse the request body
+            // Assuming that 'id', 'name', and 'email' exist in the request body
+            $customerId = $putData['id'];
+            $updatedName = $putData['name'];
+            $updatedEmail = $putData['email'];
+        
+            // You can add additional validation here if needed
+        
+            // Handle the PUT request to edit the customer
+            $result = CustomerController::editCustomer($customerId, $updatedName, $updatedEmail);
+        
+            if ($result) {
+                echo "Customer updated successfully.";
+            } else {
+                echo "Failed to update customer.";
+            }
+            break;
+        
     // case 'GET':
     //     // Handle GET request to retrieve all customers
     //     $customers = CustomerController::getAllCustomers();
@@ -72,20 +91,32 @@ switch ($requestMethod) {
     //     break;
 
     case 'DELETE':
-        // Handle DELETE request to delete a customer
         $customerId = isset($_GET['id']) ? $_GET['id'] : null;
-        $customerRole = isset($_GET['role']) ? $_GET['role'] : 0;
-
+        
         if ($customerId !== null) {
-            if (CustomerController::deleteCustomer($customerId, $customerRole)) {
-                echo "Customer deleted successfully.";
+            // Retrieve the user's role using the getCustomerRole method from your CustomerController
+            $customerRole = CustomerController::getCustomerRole($customerId);
+            
+            if ($customerRole !== null) {
+                if ($customerRole === 1) {
+                    // User is an admin, they have permission to delete
+                    if (CustomerController::deleteCustomer($customerId, $customerRole)) {
+                        echo "Customer deleted successfully.";
+                    } else {
+                        echo "Failed to delete customer.";
+                    }
+                } else {
+                    echo "Unauthorized action.";
+                }
             } else {
-                echo "Unauthorized action.";
+                echo "Failed to retrieve customer role.";
             }
         } else {
             echo "Customer ID is required.";
         }
         break;
+    
+    
 
     case 'POST':
         // Handle POST request to create a customer

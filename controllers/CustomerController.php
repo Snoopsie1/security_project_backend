@@ -26,6 +26,22 @@ class CustomerController {
             return null; // Customer not found
         }
     }
+
+    // Function to get the customer's role by their ID
+    public static function getCustomerRole($customerId) {
+    $pdo = new Connect(); // Assuming $pdo is your configured database connection
+
+    $stmt = $pdo->prepare("SELECT role_id FROM customer WHERE id = ?");
+    $stmt->execute([$customerId]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        return $row['role_id'];
+    } else {
+        return null; // Customer not found
+    }
+    }
     
 
     //localhost/api/routes/customer.php
@@ -43,19 +59,49 @@ class CustomerController {
         return $customers;
     }
 
-    //localhost/api/routes/customer.php?id=customerId&customerRole=customerRole
-    public static function deleteCustomer($customerId, $customerRole) {
-        if ($customerRole == 1) {
-            $pdo = new Connect();
-
-            $stmt = $pdo->prepare("DELETE FROM customer WHERE id = ?");
-            $stmt->execute([$customerId]);
-
-            return true;
-        } else {
-            return false;
+    public static function editCustomer($customerId, $updatedName, $updatedEmail) {
+        $pdo = new Connect();
+        $statement = $pdo->prepare("UPDATE customer SET name = :name, email = :email WHERE id = :id");
+        $statement->bindValue(':name', $updatedName);
+        $statement->bindValue(':email', $updatedEmail);
+        $statement->bindValue(':id', $customerId);
+        $statement->execute();
+    
+        if (!$success) {
+            error_log("Database update error: " . implode(" ", $stmt->errorInfo()));
         }
+    
+        return $stmt->rowCount() > 0; // Return true if any rows were updated
     }
+     
+
+   // localhost/api/routes/customer.php?id=customerId&customerRole=customerRole
+   public static function deleteCustomer($customerId, $customerRole) {
+    error_log("Customer Role: " . $customerRole);
+    if ($customerRole === 1) {
+        $pdo = new Connect();
+
+        // Use a prepared statement to safely delete the customer by ID
+        $stmt = $pdo->prepare("DELETE FROM customer WHERE id = :id");
+        $stmt->bindValue(':id', $customerId);
+
+        // Execute the statement
+        $success = $stmt->execute();
+
+        if (!$success) {
+            // Handle the database update error (e.g., log the error message)
+            error_log("Database delete error: " . implode(" ", $stmt->errorInfo()));
+        }
+
+        return $stmt->rowCount() > 0; // Return true if any rows were deleted
+    } else {
+        // User doesn't have the necessary role to delete customers
+        return false;
+    }
+}
+
+
+
 
     public function checkEmail($pdo, $email) {
         $email_query_statement = $pdo->prepare("SELECT * FROM customer WHERE email = :email");
