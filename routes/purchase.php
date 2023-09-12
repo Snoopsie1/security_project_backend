@@ -78,7 +78,8 @@ switch ($requestMethod) {
         if ($data !== null) {
             // $data now contains a Purchase object with products
             // Access them like this: $data->id and $data->products
-            print_r($data);
+            PurchaseController::createPurchase($data["productIds"], $data["customerID"], 1);
+
         } else {
             // Handle JSON decoding error
             http_response_code(400); // Bad Request
