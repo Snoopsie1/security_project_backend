@@ -24,28 +24,6 @@ class ProductController {
         return $products;
     }
 
-    //localhost/api/routes/product.php?id=productId&customerRole=customerRole
-    public static function deleteProduct($productId, $customerRole) {
-        if ($customerRole == 1) {
-            global $pdo;
-
-            $stmt = $pdo->prepare("DELETE FROM product WHERE id = ?");
-            $stmt->execute([$productId]);
-
-            http_response_code(200);
-            return json_encode(array(
-                "status" => 1,
-                "message" => "Added product, successfully!",
-            ));
-        } else {
-            http_response_code(500);
-            return json_encode(array(
-                "status" => 0,
-                "message" => "Whoops something went wrong!",
-            ));
-        }
-    }
-
     public function checkProductName($pdo, $name) {
         $product_query_statement = $pdo->prepare("SELECT * FROM product WHERE name = :name");
         $product_query_statement->bindValue(':name', $name);
@@ -86,6 +64,30 @@ class ProductController {
                 }
             }
         } else {
+            return false;
+        }
+    }
+
+    public static function deleteProduct($productId, $customerRole) {
+        error_log("Customer Role: " . $customerRole);
+        if ($customerRole === 1) {
+            $pdo = new Connect();
+    
+            // Use a prepared statement to safely delete the customer by ID
+            $stmt = $pdo->prepare("DELETE FROM product WHERE id = :id");
+            $stmt->bindValue(':id', $productId);
+    
+            // Execute the statement
+            $success = $stmt->execute();
+    
+            if (!$success) {
+                // Handle the database update error (e.g., log the error message)
+                error_log("Database delete error: " . implode(" ", $stmt->errorInfo()));
+            }
+    
+            return $stmt->rowCount() > 0; // Return true if any rows were deleted
+        } else {
+            // User doesn't have the necessary role to delete customers
             return false;
         }
     }

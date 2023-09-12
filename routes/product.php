@@ -18,6 +18,7 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header('Content-Type: application/json');
 
 require_once('../controllers/ProductController.php');
+require_once('../controllers/CustomerController.php');
 
 switch ($requestMethod) {
     case 'GET':
@@ -30,18 +31,33 @@ switch ($requestMethod) {
         break;
 
     case 'DELETE':
-        // Handle DELETE request to delete a product
-        $productId = isset($_GET['id']) ? $_GET['id'] : null;
-        $customerRole = isset($_GET['role']) ? $_GET['role'] : 0;
+        $productData = json_decode(file_get_contents("php://input"), true);
+        $produdctId = $productData['id']; 
+        $customerId = $productData['customer_id'];
 
-        if ($productId !== null) {
-            if (ProductController::deleteProduct($productId, $customerRole)) {
-                echo "Product deleted successfully.";
+        echo $produdctId;
+        echo $customerId;
+        
+        if ($customerId !== null) {
+            // Retrieve the user's role using the getCustomerRole method from your CustomerController
+            $customerRole = CustomerController::getCustomerRole($customerId);
+            
+            if ($customerRole !== null) {
+                if ($customerRole === 1) {
+                    // User is an admin, they have permission to delete
+                    if (ProductController::deleteProduct($produdctId, $customerRole)) {
+                        echo "Product deleted successfully.";
+                    } else {
+                        echo "Failed to delete product.";
+                    }
+                } else {
+                    echo "Unauthorized action.";
+                }
             } else {
-                echo "Unauthorized action.";
+                echo "Failed to retrieve customer role.";
             }
         } else {
-            echo "Product ID is required.";
+            echo "Customer ID is required.";
         }
         break;
 
