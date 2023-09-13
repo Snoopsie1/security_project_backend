@@ -65,13 +65,13 @@ class CustomerController {
         $statement->bindValue(':name', $updatedName);
         $statement->bindValue(':email', $updatedEmail);
         $statement->bindValue(':id', $customerId);
-        $statement->execute();
+        $success = $statement->execute();
     
         if (!$success) {
-            error_log("Database update error: " . implode(" ", $stmt->errorInfo()));
+            error_log("Database update error: " . implode(" ", $statement->errorInfo()));
         }
     
-        return $stmt->rowCount() > 0; // Return true if any rows were updated
+        return $statement->rowCount() > 0; // Return true if any rows were updated
     }
      
 
@@ -99,9 +99,6 @@ class CustomerController {
         return false;
     }
 }
-
-
-
 
     public function checkEmail($pdo, $email) {
         $email_query_statement = $pdo->prepare("SELECT * FROM customer WHERE email = :email");
