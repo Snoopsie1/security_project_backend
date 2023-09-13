@@ -91,11 +91,13 @@ switch ($requestMethod) {
     //     break;
 
     case 'DELETE':
-        $customerId = isset($_GET['id']) ? $_GET['id'] : null;
+        $customerData = json_decode(file_get_contents("php://input"), true);
+        $currentCustomerId = $customerData['current_customer_id'];
+        $customerId = $customerData['id'];
         
-        if ($customerId !== null) {
+        if ($currentCustomerId !== null) {
             // Retrieve the user's role using the getCustomerRole method from your CustomerController
-            $customerRole = CustomerController::getCustomerRole($customerId);
+            $customerRole = CustomerController::getCustomerRole($currentCustomerId);
             
             if ($customerRole !== null) {
                 if ($customerRole === 1) {
