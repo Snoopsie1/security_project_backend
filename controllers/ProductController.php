@@ -40,9 +40,12 @@ class ProductController {
         if ($customerRole == 1) {
             $pdo = new Connect();
 
+            $sanitizedProductName = filter_var($productName, FILTER_SANITIZE_SPECIAL_CHARS);
+            $sanitizedProductPrice = filter_var($productPrice, FILTER_SANITIZE_NUMBER_INT);
+
             $stmt = $pdo->prepare("INSERT INTO product (name, price) VALUES (?, ?)");
-            $stmt->bindParam(1, $productName);
-            $stmt->bindParam(2, $productPrice);
+            $stmt->bindParam(1, $sanitizedProductName);
+            $stmt->bindParam(2, $sanitizedProductPrice);
 
             $product_data = $this->checkProductName($pdo, $productName);
 
