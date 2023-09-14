@@ -61,9 +61,13 @@ class CustomerController {
 
     public static function editCustomer($customerId, $updatedName, $updatedEmail) {
         $pdo = new Connect();
+
+        $sanitizedName = filter_var($updatedName, FILTER_SANITIZE_SPECIAL_CHARS);
+        $sanitizedEmail = filter_var($updatedEmail, FILTER_SANITIZE_EMAIL);
+
         $statement = $pdo->prepare("UPDATE customer SET name = :name, email = :email WHERE id = :id");
-        $statement->bindValue(':name', $updatedName);
-        $statement->bindValue(':email', $updatedEmail);
+        $statement->bindValue(':name', $sanitizedName);
+        $statement->bindValue(':email', $sanitizedEmail);
         $statement->bindValue(':id', $customerId);
         $success = $statement->execute();
     
