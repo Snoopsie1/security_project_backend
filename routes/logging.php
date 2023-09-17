@@ -51,13 +51,20 @@ switch ($requestMethod) {
         break;
     }
     case 'POST': {
+        $urlParts = parse_url($requestUri); //split the URL into parts
+        $uriWithoutQuery = $urlParts['path']; //rebuild the URL without the query part
+        $segments = explode('/', trim($uriWithoutQuery, '/')); //split URL into segments and select last segment
+        //check if URL contains "/purchasephp/" followed by a number
+        $action = in_array('logging.php', $segments) && is_numeric(end($segments)) ? true : false;
+
         $json = file_get_contents('php://input');
         $data = json_decode($json, true); // true to get an associative array
+        $customerId = array_pop($segments);
 
         if ($data !== null) {
             // $data now contains a Purchase object with products
             // Access them like this: $data->id and $data->products
-            LoggingController::createLog($data["customer_id"], $data["message"], 1);
+            LoggingController::createLog($customerId, $data["message"], 1);
 
         } else {
             // Handle JSON decoding error

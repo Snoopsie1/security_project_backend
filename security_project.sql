@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Vært: localhost
--- Genereringstid: 05. 09 2023 kl. 10:47:34
--- Serverversion: 10.4.28-MariaDB
--- PHP-version: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Sep 17, 2023 at 11:18 AM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `customer`
+-- Table structure for table `customer`
 --
 
 CREATE TABLE `customer` (
@@ -36,10 +36,19 @@ CREATE TABLE `customer` (
   `purchases` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`id`, `name`, `email`, `password`, `role_id`, `purchases`) VALUES
+(2, 'mikkel', 'mikkel@test.dk', '$2y$10$Pobakkwm3v/rCVXMx55FlOGJqBUqnkBC7vYDDCpf6bGdbbcfFzyNO', 1, NULL),
+(3, 'oliver', 'oliver@test.dk', '$2y$10$o/v2VAcbFOr7S1sYhfd7SO3ZPXCQsBDyKLmnFMnA0rnEQLsnkLiNe', 1, NULL),
+(4, 'emil', 'emil@test.dk', '$2y$10$q1M2kHTenJRjcimkzdij2u0fqD0zG.s8KArvOeaPFYt1h7qSJyjrG', 2, NULL);
+
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `customer_purchase`
+-- Table structure for table `customer_purchase`
 --
 
 CREATE TABLE `customer_purchase` (
@@ -48,10 +57,40 @@ CREATE TABLE `customer_purchase` (
   `purchase_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `customer_purchase`
+--
+
+INSERT INTO `customer_purchase` (`id`, `customer_id`, `purchase_id`) VALUES
+(12, 2, 45);
+
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `product`
+-- Table structure for table `logging`
+--
+
+CREATE TABLE `logging` (
+  `customer_id` int(11) NOT NULL,
+  `message` varchar(60) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `logging`
+--
+
+INSERT INTO `logging` (`customer_id`, `message`, `timestamp`) VALUES
+(2, 'User logged in', '2023-09-13 07:45:31'),
+(2, 'User created a new order', '2023-09-13 07:45:56'),
+(3, 'User Failed to create order', '2023-09-13 07:46:47'),
+(2, 'User deleted purchase', '2023-09-13 08:06:07'),
+(2, 'User deleted purchase', '2023-09-13 08:16:49');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product`
 --
 
 CREATE TABLE `product` (
@@ -61,31 +100,38 @@ CREATE TABLE `product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `product`
+-- Dumping data for table `product`
 --
 
 INSERT INTO `product` (`id`, `name`, `price`) VALUES
-(10, 'condom', 40),
+(10, 'tape', 40),
 (11, 'webcam', 100),
 (12, 'weight gainer', 400),
 (13, 'roids', 1000),
-(14, 'strap on', 40),
+(14, 'cykelhjelm', 40),
 (15, 'neon lys', 80);
 
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `purchase`
+-- Table structure for table `purchase`
 --
 
 CREATE TABLE `purchase` (
   `id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `purchase`
+--
+
+INSERT INTO `purchase` (`id`) VALUES
+(45);
+
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `purchase_product`
+-- Table structure for table `purchase_product`
 --
 
 CREATE TABLE `purchase_product` (
@@ -94,10 +140,18 @@ CREATE TABLE `purchase_product` (
   `purchase_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `purchase_product`
+--
+
+INSERT INTO `purchase_product` (`id`, `product_id`, `purchase_id`) VALUES
+(71, 10, 45),
+(72, 11, 45);
+
 -- --------------------------------------------------------
 
 --
--- Struktur-dump for tabellen `role`
+-- Table structure for table `role`
 --
 
 CREATE TABLE `role` (
@@ -106,7 +160,7 @@ CREATE TABLE `role` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Data dump for tabellen `role`
+-- Dumping data for table `role`
 --
 
 INSERT INTO `role` (`id`, `role`) VALUES
@@ -114,11 +168,11 @@ INSERT INTO `role` (`id`, `role`) VALUES
 (2, 'user');
 
 --
--- Begrænsninger for dumpede tabeller
+-- Indexes for dumped tables
 --
 
 --
--- Indeks for tabel `customer`
+-- Indexes for table `customer`
 --
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`id`),
@@ -129,7 +183,7 @@ ALTER TABLE `customer`
   ADD KEY `role_id_2` (`role_id`);
 
 --
--- Indeks for tabel `customer_purchase`
+-- Indexes for table `customer_purchase`
 --
 ALTER TABLE `customer_purchase`
   ADD PRIMARY KEY (`id`),
@@ -137,21 +191,21 @@ ALTER TABLE `customer_purchase`
   ADD KEY `purchase_id` (`purchase_id`);
 
 --
--- Indeks for tabel `product`
+-- Indexes for table `product`
 --
 ALTER TABLE `product`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id` (`id`);
 
 --
--- Indeks for tabel `purchase`
+-- Indexes for table `purchase`
 --
 ALTER TABLE `purchase`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id` (`id`);
 
 --
--- Indeks for tabel `purchase_product`
+-- Indexes for table `purchase_product`
 --
 ALTER TABLE `purchase_product`
   ADD PRIMARY KEY (`id`),
@@ -162,72 +216,72 @@ ALTER TABLE `purchase_product`
   ADD KEY `purchase_id_2` (`purchase_id`);
 
 --
--- Indeks for tabel `role`
+-- Indexes for table `role`
 --
 ALTER TABLE `role`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id` (`id`);
 
 --
--- Brug ikke AUTO_INCREMENT for slettede tabeller
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- Tilføj AUTO_INCREMENT i tabel `customer`
+-- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `customer_purchase`
+-- AUTO_INCREMENT for table `customer_purchase`
 --
 ALTER TABLE `customer_purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `product`
+-- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `purchase`
+-- AUTO_INCREMENT for table `purchase`
 --
 ALTER TABLE `purchase`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `purchase_product`
+-- AUTO_INCREMENT for table `purchase_product`
 --
 ALTER TABLE `purchase_product`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
--- Tilføj AUTO_INCREMENT i tabel `role`
+-- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- Begrænsninger for dumpede tabeller
+-- Constraints for dumped tables
 --
 
 --
--- Begrænsninger for tabel `customer`
+-- Constraints for table `customer`
 --
 ALTER TABLE `customer`
   ADD CONSTRAINT `purchases` FOREIGN KEY (`purchases`) REFERENCES `customer_purchase` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
   ADD CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
 
 --
--- Begrænsninger for tabel `customer_purchase`
+-- Constraints for table `customer_purchase`
 --
 ALTER TABLE `customer_purchase`
   ADD CONSTRAINT `customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
   ADD CONSTRAINT `purchase_id` FOREIGN KEY (`purchase_id`) REFERENCES `purchase` (`id`) ON DELETE SET NULL ON UPDATE SET NULL;
 
 --
--- Begrænsninger for tabel `purchase_product`
+-- Constraints for table `purchase_product`
 --
 ALTER TABLE `purchase_product`
   ADD CONSTRAINT `product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
